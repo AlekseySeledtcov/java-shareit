@@ -1,17 +1,16 @@
 package ru.practicum.shareit.user;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.interfaces.OnCreateGroup;
+import ru.practicum.shareit.interfaces.OnPatchGroup;
 import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.dto.UserResponseDto;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -20,13 +19,13 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserResponseDto postUser(@Valid @RequestBody UserRequestDto userRequestDto) {
+    public UserResponseDto postUser(@Validated(OnCreateGroup.class) @RequestBody UserRequestDto userRequestDto) {
         log.debug("postUser. Добавление пользователя {}", userRequestDto);
         return userService.postUser(userRequestDto);
     }
 
     @PatchMapping("/{userId}")
-    public UserResponseDto patchUser(@RequestBody UserRequestDto userRequestDto,
+    public UserResponseDto patchUser(@Validated(OnPatchGroup.class) @RequestBody UserRequestDto userRequestDto,
                                      @PathVariable("userId") Long userId) {
         log.debug("PatchUser. Обновление полей полльзователя с userId = {}", userId);
         return userService.patchUser(userRequestDto, userId);

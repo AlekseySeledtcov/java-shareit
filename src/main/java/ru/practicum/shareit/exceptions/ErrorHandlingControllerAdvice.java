@@ -33,7 +33,6 @@ public class ErrorHandlingControllerAdvice {
     public ValidationErrorResponse onMethodArgumentNotValidException(final MethodArgumentNotValidException exception) {
         final ValidationErrorResponse error = new ValidationErrorResponse();
         exception.getBindingResult().getFieldErrors()
-                .stream()
                 .forEach(fieldError -> error.getViolations().add(new Violation(fieldError.getField(), fieldError.getDefaultMessage())));
         return error;
     }

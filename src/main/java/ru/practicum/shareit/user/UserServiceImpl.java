@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.AlreadyExistsException;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
-import ru.practicum.shareit.exceptions.InternalServerException;
+import ru.practicum.shareit.interfaces.UserMapper;
 import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.model.User;
@@ -17,56 +17,56 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private long id = 1L;
 
     @Override
     public UserResponseDto postUser(UserRequestDto userRequestDto) {
         log.debug("postUser. Добавление пользователя");
 
-        if (containsUserByEmail(userRequestDto.getEmail())) {
+        if (userRepository.hasEmail(userRequestDto.getEmail())) {
             throw new AlreadyExistsException("Такой объект уже существует");
         }
 
-        User user = UserMapper.mapToUser(userRequestDto);
+        User user = userMapper.toEntity(userRequestDto);
         user.setId(getUserId());
-
-        user = userRepository.postUser(user).orElseThrow(() -> {
-            throw new InternalServerException("Ошибка записи");
-        });
-        return UserMapper.mapToUserResponseDto(user);
+        log.debug("postUser. Добавление пользователя {}", user);
+        return userMapper.toDto(userRepository.postUser(user));
     }
 
     @Override
     public UserResponseDto patchUser(UserRequestDto userRequestDto, Long userId) {
-        log.debug("patchUser. Обновление полей пользователя");
+        log.debug("patchUser. Обновление полей пользователя {}", userRequestDto);
 
-        User oldUser = userRepository.getUser(userId).orElseThrow(() -> {
+        if (!userRepository.containsUser(userId)) {
             throw new EntityNotFoundException("Пользователь не найден");
-        });
+        }
 
-        User newUser = UserMapper.updateUserFields(userRequestDto, oldUser);
+        User oldUser = userRepository.getUser(userId);
 
-        userRepository.deleteUser(oldUser.getId());
+        userRepository.deleteUser(userId);
 
-        if (containsUserByEmail(newUser.getEmail())) {
+        User patchedUser = userRequestDto.updateUserFields(oldUser);
+
+        if (userRepository.hasEmail(patchedUser.getEmail())) {
             userRepository.postUser(oldUser);
             throw new AlreadyExistsException("Пользователь с таким email уже существует");
         }
 
-        newUser = userRepository.postUser(newUser).orElseThrow(() -> {
-            throw new InternalServerException("Ошибка записи");
-        });
-
-        return UserMapper.mapToUserResponseDto(newUser);
+        return userMapper.toDto(userRepository.postUser(patchedUser));
     }
 
     @Override
     public UserResponseDto getUser(Long userId) {
         log.debug("getUser. Получение пользователя по userId={}", userId);
-        User user = userRepository.getUser(userId).orElseThrow(() -> {
-            return new EntityNotFoundException("Пользователь не найден");
-        });
-        return UserMapper.mapToUserResponseDto(user);
+
+        if (!userRepository.containsUser(userId)) {
+            throw new EntityNotFoundException("Пользователь не найден");
+        }
+
+        User user = userRepository.getUser(userId);
+
+        return userMapper.toDto(user);
     }
 
     @Override
@@ -79,14 +79,8 @@ public class UserServiceImpl implements UserService {
     public List<UserResponseDto> getUsers() {
         log.debug("getUsers. Получение списка пользователей");
         return userRepository.getUsers().stream()
-                .map(UserMapper::mapToUserResponseDto)
+                .map(userMapper::toDto)
                 .toList();
-    }
-
-    private boolean containsUserByEmail(String email) {
-        log.debug("containsUserByEmail {} ", email);
-        return userRepository.getUsers().stream()
-                .anyMatch(u -> u.getEmail().equals(email));
     }
 
     private long getUserId() {
