@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.deleteUser(userId);
 
-        User patchedUser = userRequestDto.updateUserFields(oldUser);
+        User patchedUser = userMapper.updateField(userRequestDto, oldUser);
 
         if (userRepository.hasEmail(patchedUser.getEmail())) {
             userRepository.postUser(oldUser);

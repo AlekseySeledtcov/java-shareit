@@ -42,7 +42,7 @@ public class ItemServiceImpl implements ItemService {
             throw new EntityNotFoundException("Вещь не найдена");
         }
 
-        Item newItem = ItemRequestDto.updateItemField(itemRequestDto, oldItem);
+        Item newItem = itemMapper.updateField(itemRequestDto, oldItem);
         newItem.setOwner(userId);
 
         return itemMapper.toDto(itemRepository.postItem(newItem));
@@ -55,7 +55,7 @@ public class ItemServiceImpl implements ItemService {
         }
         Item item = itemRepository.getItemById(itemId);
         if (item.getOwner() != userId) {
-            throw new EntityNotFoundException("Вещь не найдена");
+            throw new EntityNotFoundException("Вещь не указанному userId хозяина");
         }
         return itemMapper.toDto(item);
     }

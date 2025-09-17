@@ -13,6 +13,5 @@ public class Violation {
     public Violation(String fieldName, String message) {
         this.fieldName = fieldName;
         this.message = message;
-//        log.warn("Поле {} - {}", fieldName, message);
     }
 }

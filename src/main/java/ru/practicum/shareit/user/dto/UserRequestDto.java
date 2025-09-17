@@ -7,7 +7,6 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 import ru.practicum.shareit.interfaces.OnCreateGroup;
 import ru.practicum.shareit.interfaces.OnPatchGroup;
-import ru.practicum.shareit.user.model.User;
 
 @Data
 public class UserRequestDto {
@@ -17,23 +16,4 @@ public class UserRequestDto {
     @NotNull(groups = OnCreateGroup.class, message = "Email не может быть пустым")
     @Email(groups = {OnCreateGroup.class, OnPatchGroup.class}, message = "Указан не корректный адрес электронной почты")
     private String email;
-
-    private boolean hasName() {
-        return !(name == null || name.isBlank());
-    }
-
-    private boolean hasEmail() {
-        return !(email == null || email.isBlank());
-    }
-
-    public User updateUserFields(User oldUser) {
-        if (hasName()) {
-            oldUser.setName(this.getName());
-        }
-
-        if (hasEmail()) {
-            oldUser.setEmail(this.getEmail());
-        }
-        return oldUser;
-    }
 }

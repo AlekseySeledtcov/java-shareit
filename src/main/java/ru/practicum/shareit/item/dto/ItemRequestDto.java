@@ -7,7 +7,6 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 import ru.practicum.shareit.interfaces.OnCreateGroup;
 import ru.practicum.shareit.interfaces.OnPatchGroup;
-import ru.practicum.shareit.item.model.Item;
 
 @Data
 public class ItemRequestDto {
@@ -21,31 +20,4 @@ public class ItemRequestDto {
     private Boolean available;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long owner;
-
-    private boolean hasName() {
-        return !(name == null || name.isBlank());
-    }
-
-    private boolean hasDescription() {
-        return !(description == null || description.isBlank());
-    }
-
-    private boolean hasAvailable() {
-        return available != null;
-    }
-
-    public static Item updateItemField(ItemRequestDto itemRequestDto, Item item) {
-        if (itemRequestDto.hasName()) {
-            item.setName(itemRequestDto.getName());
-        }
-        if (itemRequestDto.hasDescription()) {
-            item.setDescription(itemRequestDto.getDescription());
-        }
-
-        if (itemRequestDto.hasAvailable()) {
-            item.setAvailable(itemRequestDto.getAvailable());
-        }
-
-        return item;
-    }
 }
