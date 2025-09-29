@@ -1,22 +1,37 @@
 package ru.practicum.shareit.booking.model;
 
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
-@Data
+@Entity
+@Table(name = "bookings")
+@Getter
+@Setter
 public class Booking {
-    private long id;
-    @NotNull(message = "Время должно быть указано")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "start_date", nullable = false)
     private LocalDateTime start;
-    @Future(message = "Время окончания аренды не может быть в прошлом")
+
+    @Column(name = "end_date", nullable = false)
     private LocalDateTime end;
-    @NotNull(message = "Вещь бронирования должны быть указана")
-    private long item;
-    @NotNull(message = "Пользователь должен быть указан")
-    private long booker;
-    @NotNull(message = "Статус должен быть указан")
+
+    @JoinColumn(name = "item_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Item item;
+
+    @JoinColumn(name = "booker_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User booker;
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
     private Status status;
 }

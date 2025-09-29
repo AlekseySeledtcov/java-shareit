@@ -1,19 +1,21 @@
 # java-shareit
 ##### Приложение предоставляет возможность одним пользователям сдавать, а другми брать, в аренду вещи. 
 
+![ER-диаграмма](/src/main/resources/Java-ShareIt.png)
+
 ## В приложении реализованы следующие функции: 
 #### Пользователи 
     POST/users - добавлени пользователя 
 
-    PATCH/users/userId - обновление полей пользователя
+    PATCH/users/{userId} - обновление полей пользователя
 параметры: 
 userId - id пользователя
 
-    GET/users/userId - получение пользователя по id
+    GET/users/{userId} - получение пользователя по id
 параметры:
 userId - id пользователя
 
-    DELETE/users/userId - удаление пользователя по id
+    DELETE/users/{userId} - удаление пользователя по id
 параметры:
 userId - id пользователя
 
@@ -24,22 +26,56 @@ userId - id пользователя
 параметры:
 X-Sharer-User-Id - userId пользователя
 
-    PATCH/items/itemId - обновление полей вещи с itemId пользователя с userId
+    PATCH/items/{itemId} - обновление полей вещи с itemId пользователя с userId
 параметры:
 itemId - id вещи
 X-Sharer-User-Id - userId пользователя
 
-    GET/items/itemId - получение вещи с itemId пользователя userId
-
+    GET/items/{itemId} - получение вещи с itemId пользователя userId
+Получение вещи со списком комментариев и в случае если запрос отправил хозяин вещи, в ответе заполняются поля с последней и следующей датами бронирования.
 параметры:
 itemId - id вещи
 X-Sharer-User-Id - userId пользователя
 
     GET/items - получение списка вещей пользователя userId
+Получение списка вещей с комментариями и в случае если запрос отправил хозяин вещи, в ответе заполняются поля с последней и следующей датами бронирования.
 параметры:
 X-Sharer-User-Id - userId пользователя
 
 GET/items/search - поиск вещи по переменной строки запроса
 параметры:
 text - строка запроса
+
+    POST/{itemId}/comment - добавление коментария вещи с itemId
+Добавление коментария вещи с itemId, при условии что пользователь брал эту вещь в аренду ранее.
+параметры:
+itemId - id вещи
+
+#### Бронирование
+    POST/bookings - Добавление бронирования 
+параметры:
+X-Sharer-User-Id - userId пользователя
+
+    PATCH/bookings/{bookingId} - подтверждение или отклонение бронирования хозяином вещи
+параметры:
+X-Sharer-User-Id - userId пользователя
+bookingId - id брони
+approved - переменная строки запроса, принимает значение Boolean
+
+    GET/bookings/{bookingId} - полученние данных боронирования по bookinfId
+параметры:
+X-Sharer-User-Id - userId пользователя
+bookingId - id брони
+
+    GET/bookings/ - получение списка бронирования пользователя userId с фильтром по статусу бронирования и отсортированы по дате
+параметры:
+X-Sharer-User-Id - userId пользователя
+state - принимает значение String (ALL, CURRENT, PAST, FUTURE, WAITING, REJECTED)     
+
+    GET/bookings/owner - получение списка броней для всех вещей текущего пользоватлея, с фильтром по параметру state
+параметры:
+X-Sharer-User-Id - userId пользователя
+state - принимает значение String (ALL, CURRENT, PAST, FUTURE, WAITING, REJECTED) 
+
+
 

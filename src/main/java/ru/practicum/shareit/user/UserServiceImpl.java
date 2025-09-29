@@ -2,9 +2,13 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.AlreadyExistsException;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
+import ru.practicum.shareit.exceptions.InternalServerException;
 import ru.practicum.shareit.interfaces.UserMapper;
 import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.dto.UserResponseDto;
@@ -15,75 +19,73 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private long id = 1L;
 
+    @Transactional
     @Override
     public UserResponseDto postUser(UserRequestDto userRequestDto) {
-        log.debug("postUser. Добавление пользователя");
+        log.debug("postUser. Добавление пользователя {} ", userRequestDto);
 
-        if (userRepository.hasEmail(userRequestDto.getEmail())) {
-            throw new AlreadyExistsException("Такой объект уже существует");
+        if (userRepository.findByEmail(userRequestDto.getEmail()).isPresent()) {
+            throw new AlreadyExistsException("Такой пользователь уже существует");
         }
 
-        User user = userMapper.toEntity(userRequestDto);
-        user.setId(getUserId());
-        log.debug("postUser. Добавление пользователя {}", user);
-        return userMapper.toDto(userRepository.postUser(user));
+        User user = userRepository.save(userMapper.toEntity(userRequestDto));
+        log.debug("postUser. Добавление пользователя {} ", user);
+        return userMapper.toDto(user);
     }
 
+    @Transactional
     @Override
     public UserResponseDto patchUser(UserRequestDto userRequestDto, Long userId) {
         log.debug("patchUser. Обновление полей пользователя {}", userRequestDto);
 
-        if (!userRepository.containsUser(userId)) {
-            throw new EntityNotFoundException("Пользователь не найден");
-        }
+        User newUser = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
 
-        User oldUser = userRepository.getUser(userId);
+        userRepository.findByEmail(userRequestDto.getEmail()).ifPresent(user -> {
+                    if (!user.getId().equals(userId)) {
+                        throw new AlreadyExistsException("Такой email уже существует");
+                    }
+                }
+        );
 
-        userRepository.deleteUser(userId);
+        userMapper.updateField(userRequestDto, newUser);
+        userRepository.updateUser(newUser.getId(), newUser.getName(), newUser.getEmail());
 
-        User patchedUser = userMapper.updateField(userRequestDto, oldUser);
-
-        if (userRepository.hasEmail(patchedUser.getEmail())) {
-            userRepository.postUser(oldUser);
-            throw new AlreadyExistsException("Пользователь с таким email уже существует");
-        }
-
-        return userMapper.toDto(userRepository.postUser(patchedUser));
+        return userMapper.toDto(userRepository.findById(newUser.getId())
+                .orElseThrow(() -> new InternalServerException("Внутренняя ошибка")));
     }
 
     @Override
     public UserResponseDto getUser(Long userId) {
         log.debug("getUser. Получение пользователя по userId={}", userId);
 
-        if (!userRepository.containsUser(userId)) {
-            throw new EntityNotFoundException("Пользователь не найден");
-        }
-
-        User user = userRepository.getUser(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
 
         return userMapper.toDto(user);
     }
 
+    @Transactional
     @Override
     public void deleteUser(Long userId) {
         log.debug("deleteUser. Удаление пользователя по userId");
-        userRepository.deleteUser(userId);
+        userRepository.deleteById(userId);
     }
 
     @Override
     public List<UserResponseDto> getUsers() {
         log.debug("getUsers. Получение списка пользователей");
-        return userRepository.getUsers().stream()
+
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        PageRequest page = PageRequest.of(0, 32, sort);
+
+        return userRepository.findAll(page).stream()
                 .map(userMapper::toDto)
                 .toList();
-    }
-
-    private long getUserId() {
-        return id++;
     }
 }

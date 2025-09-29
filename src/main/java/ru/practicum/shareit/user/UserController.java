@@ -27,7 +27,7 @@ public class UserController {
     @PatchMapping("/{userId}")
     public UserResponseDto patchUser(@Validated(OnPatchGroup.class) @RequestBody UserRequestDto userRequestDto,
                                      @PathVariable("userId") Long userId) {
-        log.debug("PatchUser. Обновление полей полльзователя с userId = {}", userId);
+        log.debug("patchUser. Обновление полей пользователя с userId = {}", userId);
         return userService.patchUser(userRequestDto, userId);
     }
 
