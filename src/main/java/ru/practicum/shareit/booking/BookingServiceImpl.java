@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.BookingStrategy.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -17,7 +18,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -39,7 +39,7 @@ public class BookingServiceImpl implements BookingService {
 
         userService.getById(userId);
         Item item = itemRepository.findById(bookingRequestDto.getItemId())
-                .orElseThrow(()-> new EntityNotFoundException("Вещь не найдена"));
+                .orElseThrow(() -> new EntityNotFoundException("Вещь не найдена"));
 
         if (!item.getAvailable()) {
             throw new BadRequestException("Вещь не доступна для бронирования");
@@ -76,60 +76,22 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getBookingByState(String state, Long userId) {
-
+    public List<BookingResponseDto> getBookingByStateCurrentUser(String state, Long userId) {
         userService.getById(userId);
 
-        State stateEnum;
-        try {
-            stateEnum = State.valueOf(state);
-        } catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException("Аргумент не соответствует перечислению");
-        }
-
-        List<Booking> bookings = switch (stateEnum) {
-            case ALL -> bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
-            case CURRENT ->
-                    bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now());
-            case PAST -> bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByStartDesc(userId, LocalDateTime.now());
-            case FUTURE ->
-                    bookingRepository.findAllByBookerIdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now());
-            case WAITING -> bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, Status.WAITING.name());
-            case REJECTED ->
-                    bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED.name());
-        };
-
-        return bookings.stream()
+        BookingStrategy bookingStrategy = getBookingStrategy(state);
+        return bookingStrategy.findBookingsByBookerId(userId).stream()
                 .map(bookingMapper::toDto)
                 .toList();
     }
 
     @Override
     public List<BookingResponseDto> getBookingByStateCurrentOwner(String state, Long userId) {
-
         userService.getById(userId);
 
-        State stateEnum;
-        try {
-            stateEnum = State.valueOf(state);
-        } catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException("Аргумент не соответствует перечислению");
-        }
+        BookingStrategy bookingStrategy = getBookingStrategy(state);
 
-        Collection<Booking> bookings = switch (stateEnum) {
-            case ALL -> bookingRepository.findAllByItemOwnerIdOrderByStartDesc(userId);
-            case CURRENT -> bookingRepository.findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId,
-                    LocalDateTime.now(),
-                    LocalDateTime.now());
-            case PAST ->
-                    bookingRepository.findAllByItemOwnerIdAndEndIsBeforeOrderByStartDesc(userId, LocalDateTime.now());
-            case FUTURE ->
-                    bookingRepository.findAllByItemOwnerIdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now());
-            case WAITING -> bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.WAITING);
-            case REJECTED -> bookingRepository.findAllByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.REJECTED);
-        };
-
-        return bookings.stream()
+        return bookingStrategy.findBookingsByOwnerId(userId).stream()
                 .map(bookingMapper::toDto)
                 .toList();
     }
@@ -157,5 +119,17 @@ public class BookingServiceImpl implements BookingService {
                         Status.APPROVED,
                         LocalDateTime.now())
                 .orElseThrow(() -> new BadRequestException("Неправельные параметры запроса"));
+    }
+
+    private BookingStrategy getBookingStrategy(String state) {
+        return switch (state) {
+            case "ALL" -> new AllBookingsStrategy(bookingRepository);
+            case "CURRENT" -> new CurrentBookingStrategy(bookingRepository);
+            case "PAST" -> new PastBookingStrategy(bookingRepository);
+            case "FUTURE" -> new FutureBookingStrategy(bookingRepository);
+            case "WAITING" -> new WaitingBookingStrategy(bookingRepository);
+            case "REJECTED" -> new RejectedBookingStrategy(bookingRepository);
+            default -> throw new IllegalArgumentException("Аргумент не соответствует перечислению");
+        };
     }
 }

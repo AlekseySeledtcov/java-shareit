@@ -53,7 +53,7 @@ public class BookingController {
             @RequestHeader(RequestHeaders.USER_ID) Long userId) {
 
         log.debug("getBookingByState. Запрос на получение брони пользователя id {} по параметру {}", userId, state);
-        return bookingService.getBookingByState(state, userId);
+        return bookingService.getBookingByStateCurrentUser(state, userId);
     }
 
     @GetMapping("/owner")

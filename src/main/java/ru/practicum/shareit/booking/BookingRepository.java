@@ -6,7 +6,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,19 +33,19 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findAllByBookerIdAndStartIsAfterOrderByStartDesc(Long userId, LocalDateTime start);
 
-    List<Booking> findAllByBookerIdAndStatusOrderByStartDesc(Long userId, String state);
+    List<Booking> findAllByBookerIdAndStatusOrderByStartDesc(Long userId, Status status);
 
-    Collection<Booking> findAllByItemOwnerIdOrderByStartDesc(Long userId);
+    List<Booking> findAllByItemOwnerIdOrderByStartDesc(Long userId);
 
-    Collection<Booking> findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(Long userId,
+    List<Booking> findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(Long userId,
                                                                                           LocalDateTime start,
                                                                                           LocalDateTime end);
 
-    Collection<Booking> findAllByItemOwnerIdAndEndIsBeforeOrderByStartDesc(Long userId, LocalDateTime end);
+    List<Booking> findAllByItemOwnerIdAndEndIsBeforeOrderByStartDesc(Long userId, LocalDateTime end);
 
-    Collection<Booking> findAllByItemOwnerIdAndStartIsAfterOrderByStartDesc(Long userId, LocalDateTime start);
+    List<Booking> findAllByItemOwnerIdAndStartIsAfterOrderByStartDesc(Long userId, LocalDateTime start);
 
-    Collection<Booking> findAllByItemOwnerIdAndStatusOrderByStartDesc(Long userId, Status status);
+    List<Booking> findAllByItemOwnerIdAndStatusOrderByStartDesc(Long userId, Status status);
 
     Booking findFirstByItemIdAndItemOwnerIdAndStatusAndEndIsBeforeOrderByEndDesc(Long itemId,Long userId, Status status, LocalDateTime start);
 
