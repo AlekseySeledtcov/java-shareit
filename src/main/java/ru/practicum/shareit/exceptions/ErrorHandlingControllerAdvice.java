@@ -66,4 +66,21 @@ public class ErrorHandlingControllerAdvice {
         );
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBadRequestException(final BadRequestException exception) {
+        log.debug("Исключение BadRequestException");
+        return new ErrorResponse("Не корректные данные в запросе",
+                exception.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbiddenException(final ForbiddenException exception) {
+        log.debug("Исключение ForbiddenException");
+        return new ErrorResponse("Доступ ограничен",
+                exception.getMessage()
+        );
+    }
 }

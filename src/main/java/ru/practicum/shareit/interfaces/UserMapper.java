@@ -7,11 +7,11 @@ import ru.practicum.shareit.user.model.User;
 
 @Mapper(componentModel = "spring", nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
 public interface UserMapper {
-    User toEntity(UserRequestDto model);
+    User toEntity(UserRequestDto userRequestDto);
 
-    UserResponseDto toDto(User entity);
+    UserResponseDto toDto(User user);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
             nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
-    User updateField(UserRequestDto userRequestDto, @MappingTarget User oldUser);
+    void updateField(UserRequestDto userRequestDto, @MappingTarget User oldUser);
 }
