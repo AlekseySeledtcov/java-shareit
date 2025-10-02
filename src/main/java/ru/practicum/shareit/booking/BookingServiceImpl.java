@@ -14,7 +14,7 @@ import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.interfaces.BookingMapper;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -27,7 +27,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final ItemRepository itemRepository;
     private final BookingMapper bookingMapper;
 
@@ -37,10 +37,9 @@ public class BookingServiceImpl implements BookingService {
         log.debug("postBooking. Добавление бронирования {}", bookingRequestDto);
         bookingRequestDto.setBooker(userId);
 
-        userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+        userService.getById(userId);
         Item item = itemRepository.findById(bookingRequestDto.getItemId())
-                .orElseThrow(() -> new EntityNotFoundException("Вещь не найдена"));
+                .orElseThrow(()-> new EntityNotFoundException("Вещь не найдена"));
 
         if (!item.getAvailable()) {
             throw new BadRequestException("Вещь не доступна для бронирования");
@@ -77,10 +76,10 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Collection<BookingResponseDto> getBookingByState(String state, Long userId) {
+    public List<BookingResponseDto> getBookingByState(String state, Long userId) {
 
-        userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+        userService.getById(userId);
+
         State stateEnum;
         try {
             stateEnum = State.valueOf(state);
@@ -106,10 +105,10 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Collection<BookingResponseDto> getBookingByStateCurrentOwner(String state, Long userId) {
+    public List<BookingResponseDto> getBookingByStateCurrentOwner(String state, Long userId) {
 
-        userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+        userService.getById(userId);
+
         State stateEnum;
         try {
             stateEnum = State.valueOf(state);
@@ -133,5 +132,30 @@ public class BookingServiceImpl implements BookingService {
         return bookings.stream()
                 .map(bookingMapper::toDto)
                 .toList();
+    }
+
+    @Override
+    public Booking findLastBooking(Long itemId, Long userId, Status status) {
+        return bookingRepository.findFirstByItemIdAndItemOwnerIdAndStatusAndEndIsBeforeOrderByEndDesc(itemId,
+                userId,
+                Status.APPROVED,
+                LocalDateTime.now());
+    }
+
+    @Override
+    public Booking findNextBooking(Long itemId, Long userId, Status status) {
+        return bookingRepository.findFirstByItemIdAndItemOwnerIdAndStatusAndStartIsAfterOrderByStartAsc(itemId,
+                userId,
+                Status.APPROVED,
+                LocalDateTime.now());
+    }
+
+    @Override
+    public void checkingThatTheUserHasRentedTheItem(Long itemId, Long userId, Status status) {
+        bookingRepository.findFirstByItemIdAndBookerIdAndStatusAndStartIsBefore(itemId,
+                        userId,
+                        Status.APPROVED,
+                        LocalDateTime.now())
+                .orElseThrow(() -> new BadRequestException("Неправельные параметры запроса"));
     }
 }

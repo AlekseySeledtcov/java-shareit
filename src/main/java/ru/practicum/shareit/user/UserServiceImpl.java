@@ -43,8 +43,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto patchUser(UserRequestDto userRequestDto, Long userId) {
         log.debug("patchUser. Обновление полей пользователя {}", userRequestDto);
 
-        User newUser = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+        User newUser = getById(userId);
 
         userRepository.findByEmail(userRequestDto.getEmail()).ifPresent(user -> {
                     if (!user.getId().equals(userId)) {
@@ -56,18 +55,14 @@ public class UserServiceImpl implements UserService {
         userMapper.updateField(userRequestDto, newUser);
         userRepository.updateUser(newUser.getId(), newUser.getName(), newUser.getEmail());
 
-        return userMapper.toDto(userRepository.findById(newUser.getId())
-                .orElseThrow(() -> new InternalServerException("Внутренняя ошибка")));
+        return userMapper.toDto(getById(newUser.getId()));
     }
 
     @Override
     public UserResponseDto getUser(Long userId) {
         log.debug("getUser. Получение пользователя по userId={}", userId);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
-
-        return userMapper.toDto(user);
+        return userMapper.toDto(getById(userId));
     }
 
     @Transactional
@@ -87,5 +82,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll(page).stream()
                 .map(userMapper::toDto)
                 .toList();
+    }
+
+    public User getById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException("Пользователь не найден"));
     }
 }

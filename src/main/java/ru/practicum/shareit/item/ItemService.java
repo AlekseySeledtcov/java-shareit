@@ -4,6 +4,7 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.dto.ItemResponseWithBookingDateDto;
+import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,4 +21,6 @@ public interface ItemService {
     Collection<ItemResponseWithBookingDateDto> getItems(Long userId);
 
     CommentDto postComment(CommentDto commentDto, Long itemId, Long userId);
+
+    Item getById(Long id);
 }

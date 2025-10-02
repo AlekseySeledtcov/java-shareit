@@ -9,7 +9,7 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.constants.RequestHeaders;
 import ru.practicum.shareit.interfaces.OnCreateGroup;
 
-import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -48,7 +48,7 @@ public class BookingController {
     }
 
     @GetMapping
-    public Collection<BookingResponseDto> getBookingByState(
+    public List<BookingResponseDto> getBookingByState(
             @RequestParam(name = "state", defaultValue = "ALL") String state,
             @RequestHeader(RequestHeaders.USER_ID) Long userId) {
 
@@ -57,7 +57,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public Collection<BookingResponseDto> getBookingByStateCurrentOwner(
+    public List<BookingResponseDto> getBookingByStateCurrentOwner(
             @RequestHeader(name = "state", defaultValue = "ALL") String state,
             @RequestHeader(RequestHeaders.USER_ID) Long userId) {
 
