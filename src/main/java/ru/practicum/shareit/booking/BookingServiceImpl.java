@@ -30,6 +30,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserService userService;
     private final ItemRepository itemRepository;
     private final BookingMapper bookingMapper;
+    private final BookingStrategyFactory bookingStrategyFactory;
 
     @Transactional
     @Override
@@ -78,8 +79,10 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingResponseDto> getBookingByStateCurrentUser(String state, Long userId) {
         userService.getById(userId);
-
-        BookingStrategy bookingStrategy = getBookingStrategy(state);
+        System.out.println("state" + BookingState.parse(state));
+        BookingStrategy bookingStrategy = bookingStrategyFactory.getBookingStrategy(BookingState.parse(state));
+        System.out.println("bookingStrategy");
+        System.out.println(bookingStrategy);
         return bookingStrategy.findBookingsByBookerId(userId).stream()
                 .map(bookingMapper::toDto)
                 .toList();
@@ -89,7 +92,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponseDto> getBookingByStateCurrentOwner(String state, Long userId) {
         userService.getById(userId);
 
-        BookingStrategy bookingStrategy = getBookingStrategy(state);
+        BookingStrategy bookingStrategy = bookingStrategyFactory.getBookingStrategy(BookingState.parse(state));
 
         return bookingStrategy.findBookingsByOwnerId(userId).stream()
                 .map(bookingMapper::toDto)
@@ -119,17 +122,5 @@ public class BookingServiceImpl implements BookingService {
                         Status.APPROVED,
                         LocalDateTime.now())
                 .orElseThrow(() -> new BadRequestException("Неправельные параметры запроса"));
-    }
-
-    private BookingStrategy getBookingStrategy(String state) {
-        return switch (state) {
-            case "ALL" -> new AllBookingsStrategy(bookingRepository);
-            case "CURRENT" -> new CurrentBookingStrategy(bookingRepository);
-            case "PAST" -> new PastBookingStrategy(bookingRepository);
-            case "FUTURE" -> new FutureBookingStrategy(bookingRepository);
-            case "WAITING" -> new WaitingBookingStrategy(bookingRepository);
-            case "REJECTED" -> new RejectedBookingStrategy(bookingRepository);
-            default -> throw new IllegalArgumentException("Аргумент не соответствует перечислению");
-        };
     }
 }
