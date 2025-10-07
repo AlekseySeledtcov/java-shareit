@@ -79,10 +79,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingResponseDto> getBookingByStateCurrentUser(String state, Long userId) {
         userService.getById(userId);
-        System.out.println("state" + BookingState.parse(state));
         BookingStrategy bookingStrategy = bookingStrategyFactory.getBookingStrategy(BookingState.parse(state));
-        System.out.println("bookingStrategy");
-        System.out.println(bookingStrategy);
         return bookingStrategy.findBookingsByBookerId(userId).stream()
                 .map(bookingMapper::toDto)
                 .toList();

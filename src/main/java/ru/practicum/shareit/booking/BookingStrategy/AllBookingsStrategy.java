@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking.BookingStrategy;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingState;
@@ -9,7 +9,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import java.util.List;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AllBookingsStrategy implements BookingStrategy {
     private final BookingRepository bookingRepository;
 
