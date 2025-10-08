@@ -1,25 +1,34 @@
 package ru.practicum.shareit.item.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
 
-@Data
+@Entity
+@Table(name = "items")
+@Getter
+@Setter
 public class Item {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @NotBlank(message = "Имя должно быть указано")
-    private String name;
-    @NotBlank(message = "Описание не может быть пустым")
-    private String description;
-    @NotNull(message = "Статус должен быть проставлен")
-    private boolean available;
-    @NotNull(message = "Автор должен быть указан")
-    private long owner;
-    private long request;
 
-    public boolean hasContainsText(String text) {
-        text = text.toLowerCase().replaceAll("\\s+", "");
-        return (name.toLowerCase().replaceAll("\\s+", "").contains(text) ||
-                description.toLowerCase().replaceAll("\\s+", "").contains(text));
-    }
+    @Column(name = "name", nullable = false, length = 255)
+    private String name;
+
+    @Column(name = "description", nullable = false, length = 512)
+    private String description;
+
+    @Column(name = "is_available", nullable = false)
+    private Boolean available;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "request_id")
+    private ItemRequest request;
 }
