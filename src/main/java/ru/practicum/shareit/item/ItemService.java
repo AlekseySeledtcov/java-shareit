@@ -18,7 +18,7 @@ public interface ItemService {
 
     List<ItemResponseDto> getItemByText(String text);
 
-    Collection<ItemResponseWithBookingDateDto> getItems(Long userId);
+    List<ItemResponseWithBookingDateDto> getItems(Long userId);
 
     CommentDto postComment(CommentDto commentDto, Long itemId, Long userId);
 

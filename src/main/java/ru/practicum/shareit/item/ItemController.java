@@ -25,7 +25,7 @@ public class ItemController {
     @PostMapping
     public ItemResponseDto postItem(@RequestHeader(RequestHeaders.USER_ID) Long userId,
                                     @Validated(OnCreateGroup.class) @RequestBody ItemRequestDto itemRequestDto) {
-        itemRequestDto.setOwner(userId);
+//        itemRequestDto.setOwner(userId);
         log.debug("postItem. Добавление вещи");
         return itemService.postItem(itemRequestDto);
     }
@@ -46,7 +46,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemResponseWithBookingDateDto> getItems(@RequestHeader(RequestHeaders.USER_ID) Long userId) {
+    public List<ItemResponseWithBookingDateDto> getItems(@RequestHeader(RequestHeaders.USER_ID) Long userId) {
         log.debug("getItems. Получение списка вещей пользователя userId={}", userId);
         return itemService.getItems(userId);
     }

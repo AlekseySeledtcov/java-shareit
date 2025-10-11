@@ -2,12 +2,15 @@ package ru.practicum.shareit.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 import ru.practicum.shareit.interfaces.OnCreateGroup;
 import ru.practicum.shareit.interfaces.OnPatchGroup;
 
+@RequiredArgsConstructor
 @Getter
 @Setter
 public class UserRequestDto {

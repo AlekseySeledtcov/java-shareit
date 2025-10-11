@@ -93,7 +93,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemResponseWithBookingDateDto> getItems(Long userId) {
+    public List<ItemResponseWithBookingDateDto> getItems(Long userId) {
 
         userService.getById(userId);
 
