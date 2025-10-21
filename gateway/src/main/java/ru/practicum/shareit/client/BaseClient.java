@@ -12,7 +12,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-public abstract class BaseClient {
+public class BaseClient {
     protected final RestTemplate rest;
 
     public BaseClient(RestTemplate rest) {

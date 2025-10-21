@@ -18,7 +18,7 @@ public class ErrorHandlingControllerAdvice {
     @ResponseBody
     public ValidationErrorResponse onConstraintValidationException(final ConstraintViolationException exception) {
         final ValidationErrorResponse error = new ValidationErrorResponse();
-        error.setViolations(
+        error.setError(
                 exception.getConstraintViolations()
                         .stream()
                         .map(violation -> new Violation(violation.getPropertyPath().toString(), violation.getMessage()))
@@ -33,7 +33,7 @@ public class ErrorHandlingControllerAdvice {
     public ValidationErrorResponse onMethodArgumentNotValidException(final MethodArgumentNotValidException exception) {
         final ValidationErrorResponse error = new ValidationErrorResponse();
         exception.getBindingResult().getFieldErrors()
-                .forEach(fieldError -> error.getViolations().add(new Violation(fieldError.getField(), fieldError.getDefaultMessage())));
+                .forEach(fieldError -> error.getError().add(new Violation(fieldError.getField(), fieldError.getDefaultMessage())));
         return error;
     }
 

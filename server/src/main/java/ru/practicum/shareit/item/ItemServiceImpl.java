@@ -9,15 +9,13 @@ import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.interfaces.CommentMapper;
 import ru.practicum.shareit.interfaces.ItemMapper;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
-import ru.practicum.shareit.item.dto.ItemResponseDto;
-import ru.practicum.shareit.item.dto.ItemResponseWithBookingDateDto;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -34,12 +32,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public ItemResponseDto postItem(ItemRequestDto itemRequestDto) {
-        log.debug("postItem. Добавление вещи {} c ownerId {}", itemRequestDto, itemRequestDto.getOwner());
+    public ItemResponseDto postItem(ItemRequestDto itemRequestDto, Long ownerId) {
+        log.debug("postItem. Добавление вещи {} c ownerId {}", itemRequestDto, ownerId);
+        itemRequestDto.setOwner(ownerId);
 
-        userService.getById(itemRequestDto.getOwner());
+        userService.getById(ownerId);
 
         Item item = itemMapper.toEntity(itemRequestDto);
+
         return itemMapper.toDto(itemRepository.save(item));
     }
 
@@ -61,6 +61,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemResponseWithBookingDateDto getItemById(Long itemId, Long userId) {
 
+        userService.getById(userId);
         Item item = getById(itemId);
 
         List<CommentDto> comments = commentRepository.findAllByItemId(itemId).stream()
@@ -70,10 +71,11 @@ public class ItemServiceImpl implements ItemService {
         return itemMapper.toWithBookingDateAndCommentsDto(item,
                 bookingService.findLastBooking(item.getId(),
                         userId,
-                        Status.APPROVED),
+                        Status.APPROVED,
+                        LocalDateTime.now()),
                 bookingService.findNextBooking(item.getId(),
                         userId,
-                        Status.APPROVED),
+                        Status.APPROVED, LocalDateTime.now()),
                 comments);
     }
 
@@ -89,7 +91,6 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .map(itemMapper::toDto)
                 .toList();
-
     }
 
     @Override
@@ -112,26 +113,33 @@ public class ItemServiceImpl implements ItemService {
                 .map(item -> itemMapper.toWithBookingDateAndCommentsDto(item,
                         bookingService.findLastBooking(item.getId(),
                                 userId,
-                                Status.APPROVED),
+                                Status.APPROVED,
+                                LocalDateTime.now()),
                         bookingService.findNextBooking(item.getId(),
                                 userId,
-                                Status.APPROVED),
+                                Status.APPROVED,
+                                LocalDateTime.now()),
                         comments.get(item.getId())))
                 .toList();
     }
 
     @Transactional
     @Override
-    public CommentDto postComment(CommentDto commentDto, Long itemId, Long userId) {
+    public CommentDto postComment(CommentDto commentDto, Long itemId, Long userId, LocalDateTime timeNow) {
 
         User author = userService.getById(userId);
         Item item = getById(itemId);
 
         bookingService.checkingThatTheUserHasRentedTheItem(itemId,
                 userId,
-                Status.APPROVED);
+                Status.APPROVED,
+                timeNow);
         Comment comment = commentRepository.save(commentMapper.toEntityComment(commentDto, item, author));
         return commentMapper.toCommentDto(comment);
+    }
+
+    public List<ItemResponseWithOwnerIdDto> findItemByRequestIdWithOwnerId(Long requestId) {
+        return itemMapper.toWithOwnerIdDto(itemRepository.findAllByRequestId(requestId));
     }
 
     public Item getById(Long id) {

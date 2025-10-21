@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.dto.ItemResponseWithBookingDateDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -21,9 +22,8 @@ public class ItemController {
     @PostMapping
     public ItemResponseDto postItem(@RequestHeader(RequestHeaders.USER_ID) Long userId,
                                     @RequestBody ItemRequestDto itemRequestDto) {
-        itemRequestDto.setOwner(userId);
-        log.debug("postItem. Добавление вещи");
-        return itemService.postItem(itemRequestDto);
+        log.debug("postItem. Добавление вещи {}", itemRequestDto);
+        return itemService.postItem(itemRequestDto, userId);
     }
 
     @PatchMapping("/{itemId}")
@@ -58,7 +58,8 @@ public class ItemController {
                                   @PathVariable(name = "itemId") Long itemId,
                                   @RequestHeader(RequestHeaders.USER_ID) Long userId) {
         log.debug("postComment. Добавление отзыва");
-        return itemService.postComment(commentDto, itemId, userId);
+        return itemService.postComment(commentDto, itemId, userId, LocalDateTime.now());
     }
+
 
 }

@@ -21,7 +21,7 @@ public class FutureBookingStrategy implements BookingStrategy {
 
     @Override
     public List<Booking> findBookingsByOwnerId(Long userId) {
-        return bookingRepository.findAllByItemOwnerIdAndEndIsBeforeOrderByStartDesc(userId, LocalDateTime.now());
+        return bookingRepository.findAllByItemOwnerIdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now());
     }
 
     @Override

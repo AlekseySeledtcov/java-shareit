@@ -1,24 +1,18 @@
 package ru.practicum.shareit.booking;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
-import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.common.RequestHeaders;
 import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.interfaces.OnCreateGroup;
-
-import java.util.List;
 
 
 @Controller
@@ -50,8 +44,8 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public ResponseEntity<Object> getBookingDataById(
-            @PathVariable("bookingId") Long bookingId,
-            @RequestHeader(RequestHeaders.USER_ID) Long userId) {
+            @PathVariable("bookingId") @Positive Long bookingId,
+            @RequestHeader(RequestHeaders.USER_ID) @Positive Long userId) {
 
         log.debug("getBookingDataById. Запрос на получение брони по id {}", bookingId);
         return bookingClient.getBookingDataById(userId, bookingId);
@@ -63,20 +57,20 @@ public class BookingController {
             @RequestHeader(RequestHeaders.USER_ID) @Positive Long userId) {
 
         BookingState state = BookingState.from(stringState)
-                        .orElseThrow(()->new BadRequestException("Некорректный статус бронирования"));
+                .orElseThrow(() -> new BadRequestException("Некорректный статус бронирования"));
 
         log.debug("getBookingByState. Запрос на получение брони пользователя id {} по параметру {}", userId, state);
-        return bookingClient.getBookingByStateCurrentUser (userId, state);
+        return bookingClient.getBookingByStateCurrentUser(userId, state);
     }
 
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getBookingByStateCurrentOwner(
-            @RequestHeader(name = "state", defaultValue = "ALL") String stringState,
+            @RequestParam(name = "state", defaultValue = "ALL") String stringState,
             @RequestHeader(RequestHeaders.USER_ID) @Positive Long userId) {
 
         BookingState state = BookingState.from(stringState)
-                .orElseThrow(()->new BadRequestException("Некорректный статус бронирования"));
+                .orElseThrow(() -> new BadRequestException("Некорректный статус бронирования"));
 
         log.debug("getBookingByStateCurrentOwner. Запрос на получение списка бронирования для всех вещей текущего пользователя");
         return bookingClient.getBookingByStateCurrentOwner(userId, state);

@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ItemResponseWithOwnerIdDto {
-    private long id;
+    private Long id;
     private String name;
     private Long ownerId;
 }

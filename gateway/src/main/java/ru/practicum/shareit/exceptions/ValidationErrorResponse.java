@@ -9,5 +9,5 @@ import java.util.List;
 public class ValidationErrorResponse {
     @Getter
     @Setter
-    private List<Violation> violations = new ArrayList<>();
+    private List<Violation> error = new ArrayList<>();
 }

@@ -5,11 +5,10 @@ import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
-
-    Optional<Item> findByIdAndOwnerId(Long itemId, Long userId);
 
     @Query("SELECT i FROM Item AS i JOIN FETCH i.owner WHERE i.owner.id = :userId")
     Optional<Collection<Item>> findAllByUserId(Long userId);
@@ -19,4 +18,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "WHERE (LOWER (i.name) LIKE LOWER(%:text%) OR LOWER (i.description) LIKE LOWER(%:text%)) AND i.available = true")
     Optional<Collection<Item>> findAllByNameOrDescriptionContaining(String text);
 
+    List<Item> findAllByRequestId(Long requestId);
+
+    Optional<Item> findFirstByName(String name);
 }

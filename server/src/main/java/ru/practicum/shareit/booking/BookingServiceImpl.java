@@ -97,27 +97,27 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking findLastBooking(Long itemId, Long userId, Status status) {
+    public Booking findLastBooking(Long itemId, Long userId, Status status, LocalDateTime timeNow) {
         return bookingRepository.findFirstByItemIdAndItemOwnerIdAndStatusAndEndIsBeforeOrderByEndDesc(itemId,
                 userId,
                 Status.APPROVED,
-                LocalDateTime.now());
+                timeNow);
     }
 
     @Override
-    public Booking findNextBooking(Long itemId, Long userId, Status status) {
+    public Booking findNextBooking(Long itemId, Long userId, Status status, LocalDateTime timeNow) {
         return bookingRepository.findFirstByItemIdAndItemOwnerIdAndStatusAndStartIsAfterOrderByStartAsc(itemId,
                 userId,
                 Status.APPROVED,
-                LocalDateTime.now());
+                timeNow);
     }
 
     @Override
-    public void checkingThatTheUserHasRentedTheItem(Long itemId, Long userId, Status status) {
+    public void checkingThatTheUserHasRentedTheItem(Long itemId, Long userId, Status status, LocalDateTime timeNow) {
         bookingRepository.findFirstByItemIdAndBookerIdAndStatusAndStartIsBefore(itemId,
                         userId,
                         Status.APPROVED,
-                        LocalDateTime.now())
+                        timeNow)
                 .orElseThrow(() -> new BadRequestException("Неправельные параметры запроса"));
     }
 }

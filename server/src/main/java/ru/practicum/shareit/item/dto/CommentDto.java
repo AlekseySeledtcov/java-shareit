@@ -1,11 +1,13 @@
 package ru.practicum.shareit.item.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-
+@Data
+@NoArgsConstructor
 @Getter
 @Setter
 public class CommentDto {
@@ -13,4 +15,9 @@ public class CommentDto {
     private String text;
     private String authorName;
     private LocalDateTime created;
+
+    public CommentDto(String text, String authorName) {
+        this.text = text;
+        this.authorName = authorName;
+    }
 }

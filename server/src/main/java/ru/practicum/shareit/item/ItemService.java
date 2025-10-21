@@ -1,16 +1,14 @@
 package ru.practicum.shareit.item;
 
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.ItemResponseDto;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
-import ru.practicum.shareit.item.dto.ItemResponseWithBookingDateDto;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
 public interface ItemService {
-    ItemResponseDto postItem(ItemRequestDto requestDto);
+    ItemResponseDto postItem(ItemRequestDto requestDto, Long ownerId);
 
     ItemResponseDto patchItem(Long itemId, Long userId, ItemRequestDto itemRequestDto);
 
@@ -20,7 +18,9 @@ public interface ItemService {
 
     List<ItemResponseWithBookingDateDto> getItems(Long userId);
 
-    CommentDto postComment(CommentDto commentDto, Long itemId, Long userId);
+    CommentDto postComment(CommentDto commentDto, Long itemId, Long userId, LocalDateTime timeNow);
+
+    List<ItemResponseWithOwnerIdDto> findItemByRequestIdWithOwnerId(Long requestId);
 
     Item getById(Long id);
 }

@@ -5,6 +5,7 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingService {
@@ -19,11 +20,11 @@ public interface BookingService {
 
     List<BookingResponseDto> getBookingByStateCurrentOwner(String state, Long userId);
 
-    Booking findLastBooking(Long itemId, Long userId, Status status);
+    Booking findLastBooking(Long itemId, Long userId, Status status, LocalDateTime timeNow);
 
-    Booking findNextBooking(Long itemId, Long userId, Status status);
+    Booking findNextBooking(Long itemId, Long userId, Status status, LocalDateTime timeNow);
 
-    void checkingThatTheUserHasRentedTheItem(Long itemId, Long userId, Status status);
+    void checkingThatTheUserHasRentedTheItem(Long itemId, Long userId, Status status, LocalDateTime timeNow);
 
 
 }
