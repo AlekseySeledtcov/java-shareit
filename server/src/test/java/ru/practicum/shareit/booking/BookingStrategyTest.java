@@ -86,6 +86,8 @@ class BookingStrategyTest {
     @Test
     void testGetCurrentBookingsCurrentUser() {
         List<BookingResponseDto> result = bookingService.getBookingByStateCurrentUser("current", bookerId);
+        System.out.println("--------------------------------------------");
+        result.forEach(System.out::println);
 
         assertThat(result, notNullValue());
         assertThat(result.size(), is(1));

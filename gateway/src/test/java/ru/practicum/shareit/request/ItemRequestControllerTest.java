@@ -46,7 +46,7 @@ class ItemRequestControllerTest {
         requestDto.setCreated(LocalDateTime.of(2025, 10, 9, 11, 0, 0));
 
         requestWithItemsDto = new ItemRequestWithItemsDto();
-        requestWithItemsDto.setId(1l);
+        requestWithItemsDto.setId(1L);
         requestWithItemsDto.setDescription("Description");
         requestWithItemsDto.setRequestor(1L);
         requestWithItemsDto.setCreated(LocalDateTime.of(2025, 10, 9, 11, 0, 0));
