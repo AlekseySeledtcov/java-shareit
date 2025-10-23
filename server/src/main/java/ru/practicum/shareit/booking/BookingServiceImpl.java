@@ -4,14 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.BookingStrategy.*;
+import ru.practicum.shareit.booking.BookingStrategy.BookingStrategy;
+import ru.practicum.shareit.booking.BookingStrategy.BookingStrategyFactory;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.exceptions.ForbiddenException;
-import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.interfaces.BookingMapper;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
@@ -118,6 +119,6 @@ public class BookingServiceImpl implements BookingService {
                         userId,
                         Status.APPROVED,
                         timeNow)
-                .orElseThrow(() -> new BadRequestException("Неправельные параметры запроса"));
+                .orElseThrow(() -> new BadRequestException("Неправильные параметры запроса"));
     }
 }

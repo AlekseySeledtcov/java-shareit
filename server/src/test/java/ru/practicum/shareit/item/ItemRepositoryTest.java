@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +8,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -53,17 +51,4 @@ class ItemRepositoryTest {
 
         assertTrue(actualItems.isPresent());
     }
-
-//    @Test
-//    void findAllByNameOrDescriptionContaining() {
-//    }
-//
-//    @Test
-//    void findAllByRequestId() {
-//    }
-//
-//    @AfterEach
-//    public void deleteItems() {
-//        itemRepository.deleteAll();
-//    }
 }

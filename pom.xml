@@ -55,28 +55,22 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-checkstyle-plugin</artifactId>
-					<version>3.1.2</version>
+					<version>3.2.1</version>
 					<configuration>
 						<configLocation>checkstyle.xml</configLocation>
-						<failOnViolation>true</failOnViolation>
-						<logViolationsToConsole>true</logViolationsToConsole>
-						<includeTestSourceDirectory>true</includeTestSourceDirectory>
+						<encoding>UTF-8</encoding>
+						<consoleOutput>true</consoleOutput>
+						<failsOnError>true</failsOnError>
 					</configuration>
 					<executions>
 						<execution>
+							<id>validate</id>
+							<phase>validate</phase>
 							<goals>
 								<goal>check</goal>
 							</goals>
-							<phase>compile</phase>
 						</execution>
 					</executions>
-					<dependencies>
-						<dependency>
-							<groupId>com.puppycrawl.tools</groupId>
-							<artifactId>checkstyle</artifactId>
-							<version>10.3</version>
-						</dependency>
-					</dependencies>
 				</plugin>
 				<plugin>
 					<groupId>com.github.spotbugs</groupId>
@@ -165,29 +159,4 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-<!--	<profiles>-->
-<!--		<profile>-->
-<!--			<id>check</id>-->
-<!--			<build>-->
-<!--				<plugins>-->
-<!--					<plugin>-->
-<!--						<groupId>org.apache.maven.plugins</groupId>-->
-<!--						<artifactId>maven-checkstyle-plugin</artifactId>-->
-<!--					</plugin>-->
-<!--					<plugin>-->
-<!--						<groupId>com.github.spotbugs</groupId>-->
-<!--						<artifactId>spotbugs-maven-plugin</artifactId>-->
-<!--					</plugin>-->
-<!--				</plugins>-->
-<!--			</build>-->
-<!--			<reporting>-->
-<!--				<plugins>-->
-<!--					<plugin>-->
-<!--						<groupId>com.github.spotbugs</groupId>-->
-<!--						<artifactId>spotbugs-maven-plugin</artifactId>-->
-<!--					</plugin>-->
-<!--				</plugins>-->
-<!--			</reporting>-->
-<!--		</profile>-->
-<!--	</profiles>-->
 </project>

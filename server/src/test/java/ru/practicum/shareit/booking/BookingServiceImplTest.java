@@ -1,14 +1,11 @@
 package ru.practicum.shareit.booking;
 
-import org.junit.jupiter.api.Test;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.BookingStrategy.BookingStrategy;
 import ru.practicum.shareit.booking.BookingStrategy.BookingStrategyFactory;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
@@ -19,13 +16,8 @@ import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.interfaces.BookingMapper;
-import ru.practicum.shareit.interfaces.CommentMapper;
-import ru.practicum.shareit.interfaces.ItemMapper;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.item.dto.*;
-import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserServiceImpl;
 import ru.practicum.shareit.user.model.User;
 
@@ -35,7 +27,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
@@ -137,7 +128,6 @@ class BookingServiceImplTest {
 
     @Test
     void patchBooking() {
-//        Long bookingId = 1L;
         Boolean approved = true;
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
         when(bookingMapper.toDto(booking)).thenReturn(bookingResponseDto);
@@ -151,7 +141,6 @@ class BookingServiceImplTest {
 
     @Test
     void patchBookingIfTheItemBelongsToAnotherUser() {
-//        Long bookingId = 1L;
         Boolean approved = true;
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
 
@@ -161,7 +150,6 @@ class BookingServiceImplTest {
 
     @Test
     void patchBookingIfTheStatusIsNotAppropriate() {
-//        Long bookingId = 1L;
         Boolean approved = true;
         booking.setStatus(Status.CANCELED);
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));

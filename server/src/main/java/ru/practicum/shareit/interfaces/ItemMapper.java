@@ -7,14 +7,12 @@ import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT,
+
+@Mapper(componentModel = "spring",
         uses = {UserMapperUtil.class, ItemRequestMapperUtil.class})
 public interface ItemMapper {
 
-    //    @Mapping(target = "request", ignore = true)
     @Mapping(target = "owner", source = "owner", qualifiedByName = {"UserMapperUtil", "UserIdToUser"})
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-            nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
     @Mapping(target = "request", source = "request", qualifiedByName = {"ItemRequestMapperUtil", "ItemRequestIdToItemRequest"})
     Item toEntity(ItemRequestDto itemRequestDto);
 
@@ -26,7 +24,6 @@ public interface ItemMapper {
             nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "request", source = "request", qualifiedByName = {"ItemRequestMapperUtil", "ItemRequestIdToItemRequest"})
-//    @Mapping(target = "request", ignore = true)
     Item updateField(ItemRequestDto itemRequestDto, @MappingTarget Item oldItem);
 
     @Mapping(target = "id", source = "item.id")
@@ -38,6 +35,6 @@ public interface ItemMapper {
                                                                    List<CommentDto> comments);
 
     @Mapping(target = "ownerId", source = "owner.id")
-    List<ItemResponseWithOwnerIdDto> toWithOwnerIdDto (List<Item> items);
+    List<ItemResponseWithOwnerIdDto> toWithOwnerIdDto(List<Item> items);
 
 }
