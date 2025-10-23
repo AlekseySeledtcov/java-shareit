@@ -234,7 +234,7 @@ class ItemServiceImplTest {
 
         Item item2 = new Item();
         item2.setId(2L);
-        item2.setOwner(new User(2l, "user"));
+        item2.setOwner(new User(2L, "user"));
 
         List<Item> items = List.of(item1, item2);
 

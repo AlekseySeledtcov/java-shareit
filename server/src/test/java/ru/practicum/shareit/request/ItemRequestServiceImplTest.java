@@ -1,39 +1,26 @@
 package ru.practicum.shareit.request;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
-import ru.practicum.shareit.booking.BookingService;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.Status;
-import ru.practicum.shareit.exceptions.AlreadyExistsException;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
-import ru.practicum.shareit.interfaces.CommentMapper;
-import ru.practicum.shareit.interfaces.ItemMapper;
 import ru.practicum.shareit.interfaces.ItemRequestMapper;
 import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.item.dto.*;
-import ru.practicum.shareit.item.model.Comment;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ItemResponseWithOwnerIdDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestWithItemsDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.UserServiceImpl;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class ItemRequestServiceImplTest {
@@ -162,7 +149,7 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getRequestByIdIfRequestorNotExist () {
+    void getRequestByIdIfRequestorNotExist() {
         when(userService.getById(requestorId)).thenThrow(EntityNotFoundException.class);
 
         assertThrows(EntityNotFoundException.class, () -> itemRequestService.getRequestById(requestorId, itemRequestDto.getId()));
