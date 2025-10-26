@@ -2,7 +2,6 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
@@ -15,9 +14,8 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -44,19 +42,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestWithItemsDto> getItemRequest(Long requestorId) {
         userService.getById(requestorId);
 
-        List<ItemRequest> requests = itemRequestRepository.findAllByRequestorId(requestorId)
-                .orElseThrow(() -> new EntityNotFoundException("Запрос на вещи не найден"));
-        Map<Long, List<ItemResponseWithOwnerIdDto>> items = new HashMap<>();
-
-        requests.stream()
-                .map(request -> items.put(request.getId(),
-                        itemService.findItemByRequestIdWithOwnerId(request.getId())))
-                .toList();
-
-        return requests.stream()
+        return itemRequestRepository.findAllByRequestorId(requestorId)
+                .orElseThrow(() -> new EntityNotFoundException("Запрос на вещь не найден"))
+                .stream()
                 .map(request -> {
-                    return itemRequestMapper.toWithItemsDto(request, items.get(request.getId()));
+                    List<ItemResponseWithOwnerIdDto> items = itemService.findItemByRequestIdWithOwnerId(request.getId());
+                    return itemRequestMapper.toWithItemsDto(request, items);
                 })
+                .sorted(Comparator.comparing(ItemRequestWithItemsDto::getCreated).reversed())
                 .toList();
     }
 
@@ -64,7 +57,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<ItemRequestDto> getItemRequestAll(Long requestorId) {
         userService.getById(requestorId);
 
-        List<ItemRequest> itemRequests = itemRequestRepository.findAll(Sort.by(Sort.Order.desc("created")));
+        List<ItemRequest> itemRequests = itemRequestRepository.findAllByIdNotOrderByCreatedDesc(requestorId)
+                .orElseThrow(() -> new EntityNotFoundException("Запросы не найдены"));
 
         return itemRequestMapper.toListDto(itemRequests);
     }

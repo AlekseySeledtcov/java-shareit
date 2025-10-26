@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
@@ -27,22 +26,21 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 @SpringBootTest
-@AutoConfigureMockMvc
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Transactional
 class ItemRequestServiceImplIntegrationTest {
 
     @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
     @Autowired
-    ItemRepository itemRepository;
+    private final ItemRepository itemRepository;
     @Autowired
-    ItemRequestRepository itemRequestRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Autowired
-    private UserService userService;
+    private final UserService userService;
     @Autowired
-    ItemRequestService itemRequestService;
+    private final ItemRequestService itemRequestService;
 
     private ItemRequestDto itemRequestDto;
     private Long requestorId;
@@ -52,19 +50,18 @@ class ItemRequestServiceImplIntegrationTest {
     @BeforeEach
     void setup() {
         // Создаем пользователей
-            // Запросные POJO
+        // Запросные POJO
         UserRequestDto ownerUserRequestDto = new UserRequestDto("Иван Иваныч", "Ivan@mail.com");
         UserRequestDto requestorUserRequestDto = new UserRequestDto("Петр Петрович", "Petr@mail.com");
-            // Ответы
+        // Ответы
         UserResponseDto ownerUserResponseDto = userService.postUser(ownerUserRequestDto);
         UserResponseDto requestorUserResponseDto = userService.postUser(requestorUserRequestDto);
-            // ID
+        // ID
         requestorId = requestorUserResponseDto.getId();
         ownerId = ownerUserResponseDto.getId();
         // Создаем запрос на вещь
         itemRequestDto = new ItemRequestDto("Чтобы жужало", requestorId);
     }
-
 
     @Test
     void postItemRequest() {
@@ -76,14 +73,6 @@ class ItemRequestServiceImplIntegrationTest {
         assertThat(expected.getDescription(), equalTo(itemRequestDto.getDescription()));
         assertThat(expected.getRequestor(), equalTo(itemRequestDto.getRequestor()));
         assertThat(expected.getCreated(), notNullValue(LocalDateTime.class));
-    }
-
-    @Test
-    void getItemRequest() {
-    }
-
-    @Test
-    void getItemRequestAll() {
     }
 
     @Test

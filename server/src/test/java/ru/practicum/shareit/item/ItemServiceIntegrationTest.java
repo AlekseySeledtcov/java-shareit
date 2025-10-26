@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingServiceImpl;
@@ -28,22 +27,21 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Transactional
 class ItemServiceIntegrationTest {
 
     @Autowired
-    private ItemService itemService;
+    private final ItemService itemService;
     @Autowired
-    private UserService userService;
+    private final UserService userService;
     @Autowired
-    private BookingServiceImpl bookingService;
+    private final BookingServiceImpl bookingService;
     @Autowired
-    private ItemRequestService itemRequestService;
+    private final ItemRequestService itemRequestService;
 
     @Autowired
-    private ItemRepository itemRepository;
+    private final ItemRepository itemRepository;
 
 
     private UserResponseDto ownerUserResponseDto;
@@ -94,8 +92,8 @@ class ItemServiceIntegrationTest {
         return itemService.postItem(itemRequestDto, ownerId);
     }
 
-    private CommentDto createComment(CommentDto comment, Long itemId, Long userId, LocalDateTime timeNow) {
-        return itemService.postComment(comment, itemId, userId, timeNow);
+    private void createComment(CommentDto comment, Long itemId, Long userId, LocalDateTime timeNow) {
+        itemService.postComment(comment, itemId, userId, timeNow);
     }
 
     @Test

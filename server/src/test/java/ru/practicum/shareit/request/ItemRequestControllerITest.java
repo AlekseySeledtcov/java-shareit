@@ -65,7 +65,6 @@ class ItemRequestControllerITest {
         requestWithItemsDto.setItems(List.of(itemResponseWithOwnerIdDto));
     }
 
-
     @SneakyThrows
     @Test
     void posetItemRequestWhenItemRequestIsValidThenPostItemRequest() {

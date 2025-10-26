@@ -2,7 +2,16 @@ package ru.practicum.shareit.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @ControllerAdvice
@@ -13,9 +22,13 @@ public class ErrorHandlingControllerAdvice {
     @ResponseBody
     public ErrorResponse handleAlreadyExistsException(final AlreadyExistsException exception) {
         log.debug("Исключение AlreadyExistsException");
+
+        Map<String, String> description = new HashMap<>();
+        description.put("message: ", exception.getMessage());
+
         return new ErrorResponse(
                 "Такой объект уже существует",
-                exception.getMessage()
+                description
         );
     }
 
@@ -24,8 +37,12 @@ public class ErrorHandlingControllerAdvice {
     @ResponseBody
     public ErrorResponse handleEntityNotFoundException(final EntityNotFoundException exception) {
         log.debug("Исключение EntityNotFoundException");
+
+        Map<String, String> description = new HashMap<>();
+        description.put("message: ", exception.getMessage());
+
         return new ErrorResponse("Объект не найден",
-                exception.getMessage()
+                description
         );
     }
 
@@ -34,8 +51,12 @@ public class ErrorHandlingControllerAdvice {
     @ResponseBody
     public ErrorResponse handleBadRequestException(final BadRequestException exception) {
         log.debug("Исключение BadRequestException");
+
+        Map<String, String> description = new HashMap<>();
+        description.put("message: ", exception.getMessage());
+
         return new ErrorResponse("Не корректные данные в запросе",
-                exception.getMessage()
+                description
         );
     }
 
@@ -44,8 +65,30 @@ public class ErrorHandlingControllerAdvice {
     @ResponseBody
     public ErrorResponse handleForbiddenException(final ForbiddenException exception) {
         log.debug("Исключение ForbiddenException");
+
+        Map<String, String> description = new HashMap<>();
+        description.put("message: ", exception.getMessage());
+
         return new ErrorResponse("Доступ ограничен",
-                exception.getMessage()
+                description
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorResponse onMethodArgumentNotValidException(final MethodArgumentNotValidException exception) {
+        Map<String, String> errors = exception.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        FieldError::getDefaultMessage
+                ));
+
+        return new ErrorResponse(
+                "Ошибка валидации",
+                errors
         );
     }
 }

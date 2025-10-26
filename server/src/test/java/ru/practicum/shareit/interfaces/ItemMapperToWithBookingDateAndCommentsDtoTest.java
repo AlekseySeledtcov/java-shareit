@@ -44,12 +44,7 @@ class ItemMapperToWithBookingDateAndCommentsDtoTest {
     @Autowired
     private BookingService bookingService;
     @Autowired
-    ItemRepository itemRepository;
-
-    private Long ownerId;
-    private Long clubId;
-    private CommentDto clubCommentDto1;
-    private CommentDto clubCommentDto2;
+    private ItemRepository itemRepository;
 
     private List<CommentDto> comments;
     private Item itemClub;
@@ -61,7 +56,7 @@ class ItemMapperToWithBookingDateAndCommentsDtoTest {
     void setUp() {
         // Создаем пользователей
         UserResponseDto ownerResponseDto = createUser("Князь Киевский", "Vladimir@mail.com");
-        ownerId = ownerResponseDto.getId();
+        Long ownerId = ownerResponseDto.getId();
         UserResponseDto user1ResponseDto = createUser("Алеша Попович", "Popovich@mail.com");
         Long userId1 = user1ResponseDto.getId();
         UserResponseDto user2ResponseDto = createUser("Илья Муромец", "Muromskiy@mail.com");
@@ -71,7 +66,7 @@ class ItemMapperToWithBookingDateAndCommentsDtoTest {
 
         // Создаем предметы
         ItemResponseDto clubDto = itemService.postItem(new ItemRequestDto("Дубина", "Тяжелая штука", true, ownerId, null), ownerId);
-        clubId = clubDto.getId();
+        Long clubId = clubDto.getId();
         // Создаем бронирования
         BookingResponseDto clubBookingDto1 = createBooking(
                 userId1,
@@ -102,8 +97,8 @@ class ItemMapperToWithBookingDateAndCommentsDtoTest {
         CommentDto clubCommentRequestDto1 = new CommentDto("Тяжелая штука, но рабочая, иногода скрипит", "Алеша Попович");
         CommentDto clubCommentRequestDto2 = new CommentDto("Удобно чесать спину", "Илья Муромец");
 
-        clubCommentDto1 = createComment(clubCommentRequestDto1, clubId, userId1, LocalDateTime.now().minusMinutes(20));
-        clubCommentDto2 = createComment(clubCommentRequestDto2, clubId, userId2, LocalDateTime.now().minusMinutes(10));
+        CommentDto clubCommentDto1 = createComment(clubCommentRequestDto1, clubId, userId1, LocalDateTime.now().minusMinutes(20));
+        CommentDto clubCommentDto2 = createComment(clubCommentRequestDto2, clubId, userId2, LocalDateTime.now().minusMinutes(10));
 
         List<CommentDto> comments = List.of(clubCommentDto1, clubCommentDto2);
 

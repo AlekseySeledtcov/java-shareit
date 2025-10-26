@@ -1,7 +1,9 @@
 package ru.practicum.shareit.request;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.constants.RequestHeaders;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -13,12 +15,13 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
+@Validated
 public class ItemRequestController {
     private final ItemRequestService itemRequestService;
 
     @PostMapping
     public ItemRequestDto postItemRequest(@RequestHeader(RequestHeaders.USER_ID) Long requestorId,
-                                          @RequestBody ItemRequestDto itemRequestDto) {
+                                          @Valid @RequestBody ItemRequestDto itemRequestDto) {
         log.debug("postItemRequest. Добавление запроса вещи {}", itemRequestDto);
 
         return itemRequestService.postItemRequest(requestorId, itemRequestDto);

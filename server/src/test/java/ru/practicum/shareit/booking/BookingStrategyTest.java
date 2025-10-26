@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
@@ -25,19 +24,18 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 @Transactional
-@AutoConfigureMockMvc
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class BookingStrategyTest {
 
     @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @Autowired
-    private ItemService itemService;
+    private final ItemService itemService;
 
     @Autowired
-    private BookingService bookingService;
+    private final BookingService bookingService;
 
     private Long ownerId;
     private Long bookerId;
@@ -86,8 +84,6 @@ class BookingStrategyTest {
     @Test
     void testGetCurrentBookingsCurrentUser() {
         List<BookingResponseDto> result = bookingService.getBookingByStateCurrentUser("current", bookerId);
-        System.out.println("--------------------------------------------");
-        result.forEach(System.out::println);
 
         assertThat(result, notNullValue());
         assertThat(result.size(), is(1));

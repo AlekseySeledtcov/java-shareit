@@ -36,19 +36,19 @@ class ItemServiceImplTest {
     private CommentRepository commentRepository;
 
     @Mock
-    ItemMapper itemMapper;
+    private ItemMapper itemMapper;
 
     @Mock
-    CommentMapper commentMapper;
+    private CommentMapper commentMapper;
 
     @Mock
-    UserServiceImpl userService;
+    private UserServiceImpl userService;
 
     @Mock
-    BookingService bookingService;
+    private BookingService bookingService;
 
     @InjectMocks
-    ItemServiceImpl itemService;
+    private ItemServiceImpl itemService;
 
     private ItemRequestDto itemRequestDto;
     private Item item;

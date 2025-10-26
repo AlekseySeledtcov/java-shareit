@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.exceptions.EntityNotFoundException;
 import ru.practicum.shareit.interfaces.ItemRequestMapper;
 import ru.practicum.shareit.item.ItemService;
@@ -16,6 +15,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,8 +38,10 @@ class ItemRequestServiceImplTest {
 
     private Long requestorId;
     private User user;
-    private ItemRequest itemRequest;
-    private ItemRequestDto itemRequestDto;
+    private ItemRequest itemRequest1;
+    private ItemRequest itemRequest2;
+    private ItemRequestDto itemRequestDto1;
+    private ItemRequestDto itemRequestDto2;
 
     @BeforeEach
     void setup() {
@@ -50,66 +52,71 @@ class ItemRequestServiceImplTest {
                 itemService
         );
 
-        requestorId = 1L;
 
         user = new User(1L, "User name");
+        requestorId = user.getId();
 
-        itemRequest = new ItemRequest();
-        itemRequest.setId(1L);
-        itemRequest.setDescription("Description");
-        itemRequest.setRequestor(user);
+        itemRequest1 = new ItemRequest(1L, "Description1", user);
+        itemRequest1.setCreated(LocalDateTime.now());
+        itemRequest2 = new ItemRequest(2L, "Description2", user);
+        itemRequest2.setCreated(LocalDateTime.now().plusMinutes(10));
 
-        itemRequestDto = new ItemRequestDto();
-        itemRequestDto.setId(1L);
-        itemRequestDto.setDescription("Description");
-        itemRequestDto.setRequestor(1L);
+        itemRequestDto1 = new ItemRequestDto("Description1", user.getId());
+        itemRequestDto2 = new ItemRequestDto("Description2", user.getId());
     }
 
     @Test
     void postItemRequest() {
         when(userService.getById(requestorId)).thenReturn(user);
-        when(itemRequestMapper.toEntity(itemRequestDto)).thenReturn(itemRequest);
-        when(itemRequestRepository.save(itemRequest)).thenReturn(itemRequest);
-        when(itemRequestMapper.toDto(itemRequest)).thenReturn(itemRequestDto);
+        when(itemRequestMapper.toEntity(itemRequestDto1)).thenReturn(itemRequest1);
+        when(itemRequestRepository.save(itemRequest1)).thenReturn(itemRequest1);
+        when(itemRequestMapper.toDto(itemRequest1)).thenReturn(itemRequestDto1);
 
-        ItemRequestDto actual = itemRequestService.postItemRequest(requestorId, itemRequestDto);
+        ItemRequestDto actual = itemRequestService.postItemRequest(requestorId, itemRequestDto1);
 
-        assertEquals(itemRequestDto, actual);
+        assertEquals(itemRequestDto1, actual);
     }
 
     @Test
     void getItemRequest() {
-        List<ItemRequest> itemRequests = List.of(itemRequest);
+        ItemResponseWithOwnerIdDto itemResponseWithOwnerIdDto1 = new ItemResponseWithOwnerIdDto(1L, "Item name1", 4L);
+        ItemResponseWithOwnerIdDto itemResponseWithOwnerIdDto2 = new ItemResponseWithOwnerIdDto(2L, "Item name2", 4L);
+        ItemResponseWithOwnerIdDto itemResponseWithOwnerIdDto3 = new ItemResponseWithOwnerIdDto(3L, "Item name3", 4L);
 
-        ItemResponseWithOwnerIdDto itemResponseWithOwnerIdDto = new ItemResponseWithOwnerIdDto();
-        itemResponseWithOwnerIdDto.setId(1L);
-        itemResponseWithOwnerIdDto.setName("Item name");
-        itemResponseWithOwnerIdDto.setOwnerId(2L);
+        List<ItemRequest> itemRequests = List.of(itemRequest1, itemRequest2);
+        List<ItemResponseWithOwnerIdDto> itemsFromRequest1 = List.of(itemResponseWithOwnerIdDto1, itemResponseWithOwnerIdDto2);
+        List<ItemResponseWithOwnerIdDto> itemsFromRequest2 = List.of(itemResponseWithOwnerIdDto3);
 
-        ItemRequestWithItemsDto itemRequestWithItemsDto = new ItemRequestWithItemsDto();
-        itemRequestWithItemsDto.setId(itemRequest.getId());
-        itemRequestWithItemsDto.setDescription(itemRequest.getDescription());
-        itemRequestWithItemsDto.setRequestor(requestorId);
-        itemRequestWithItemsDto.setCreated(itemRequest.getCreated());
-        itemRequestWithItemsDto.setItems(List.of(itemResponseWithOwnerIdDto));
+        ItemRequestWithItemsDto itemRequestWithItemsDto1 = new ItemRequestWithItemsDto(
+                itemRequest1.getId(),
+                itemRequest1.getDescription(),
+                requestorId,
+                itemRequest1.getCreated(),
+                itemsFromRequest1
+        );
 
+        ItemRequestWithItemsDto itemRequestWithItemsDto2 = new ItemRequestWithItemsDto(
+                itemRequest2.getId(),
+                itemRequest2.getDescription(),
+                requestorId,
+                itemRequest2.getCreated(),
+                itemsFromRequest2
+        );
 
         when(userService.getById(requestorId)).thenReturn(user);
         when(itemRequestRepository.findAllByRequestorId(requestorId)).thenReturn(Optional.of(itemRequests));
-        when(itemService.findItemByRequestIdWithOwnerId(itemRequest.getId())).thenReturn(List.of(itemResponseWithOwnerIdDto));
-        when(itemRequestMapper.toWithItemsDto(any(ItemRequest.class), any(List.class))).thenReturn(itemRequestWithItemsDto);
+        when(itemService.findItemByRequestIdWithOwnerId(itemRequest1.getId())).thenReturn(itemsFromRequest1);
+        when(itemService.findItemByRequestIdWithOwnerId(itemRequest2.getId())).thenReturn(itemsFromRequest2);
+        when(itemRequestMapper.toWithItemsDto(itemRequest1, itemsFromRequest1)).thenReturn(itemRequestWithItemsDto1);
+        when(itemRequestMapper.toWithItemsDto(itemRequest2, itemsFromRequest2)).thenReturn(itemRequestWithItemsDto2);
 
-        List<ItemRequestWithItemsDto> actual = itemRequestService.getItemRequest(requestorId);
+        List<ItemRequestWithItemsDto> result = itemRequestService.getItemRequest(requestorId);
 
-        verify(itemRequestMapper, times(1)).toWithItemsDto(any(ItemRequest.class), any(List.class));
+        verify(itemRequestMapper, times(2)).toWithItemsDto(any(ItemRequest.class), any(List.class));
 
-        assertNotNull(actual);
-        assertEquals(1, actual.size());
-        assertEquals(itemRequest.getId(), actual.getFirst().getId());
-        assertEquals(itemRequest.getDescription(), actual.getFirst().getDescription());
-        assertEquals(itemRequest.getRequestor().getId(), actual.getFirst().getRequestor());
-        assertEquals(itemRequest.getCreated(), actual.getFirst().getCreated());
-        assertNotNull(actual.getFirst().getItems());
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.getFirst().getCreated().isAfter(result.getLast().getCreated()));
     }
 
     @Test
@@ -131,19 +138,20 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getItemRequestAll() {
-        List<ItemRequest> itemRequests = List.of(itemRequest);
+        itemRequest2.setRequestor(new User(2L, "Another user"));
+        List<ItemRequest> itemRequests = List.of(itemRequest2);
 
         when(userService.getById(requestorId)).thenReturn(user);
-        when(itemRequestRepository.findAll(any(Sort.class))).thenReturn(itemRequests);
-        when(itemRequestMapper.toListDto(itemRequests)).thenReturn(List.of(itemRequestDto));
+        when(itemRequestRepository.findAllByIdNotOrderByCreatedDesc(requestorId)).thenReturn(Optional.of(itemRequests));
+        when(itemRequestMapper.toListDto(itemRequests)).thenReturn(List.of(itemRequestDto2));
 
         List<ItemRequestDto> actual = itemRequestService.getItemRequestAll(requestorId);
 
         assertNotNull(actual);
         assertEquals(1, actual.size());
-        assertEquals(itemRequestDto.getId(), actual.get(0).getId());
-        assertEquals(itemRequestDto.getDescription(), actual.get(0).getDescription());
-        assertEquals(itemRequestDto.getRequestor(), actual.get(0).getRequestor());
+        assertEquals(itemRequestDto2.getId(), actual.getFirst().getId());
+        assertEquals(itemRequestDto2.getDescription(), actual.getFirst().getDescription());
+        assertEquals(itemRequestDto2.getRequestor(), actual.getFirst().getRequestor());
 
         verify(itemRequestMapper, times(1)).toListDto(itemRequests);
     }
@@ -152,7 +160,7 @@ class ItemRequestServiceImplTest {
     void getRequestByIdIfRequestorNotExist() {
         when(userService.getById(requestorId)).thenThrow(EntityNotFoundException.class);
 
-        assertThrows(EntityNotFoundException.class, () -> itemRequestService.getRequestById(requestorId, itemRequestDto.getId()));
+        assertThrows(EntityNotFoundException.class, () -> itemRequestService.getRequestById(requestorId, itemRequestDto1.getId()));
         verify(itemRequestMapper, never()).toWithItemsDto(any(), any());
     }
 

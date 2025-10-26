@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
@@ -11,29 +12,26 @@ import ru.practicum.shareit.user.model.User;
 import java.util.Collection;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
+@Transactional
 class ItemRepositoryTest {
 
     @Autowired
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
 
     @Autowired
-    UserRepository userRepository;
-
-    private User user1;
-    private User user2;
-    private User user3;
-
+    private UserRepository userRepository;
 
     @BeforeEach
     public void addItems() {
-        user1 = new User(1L, "Owner 1");
+        User user1 = new User(1L, "Owner 1");
         user1.setEmail("User1@mail.ru");
-        user2 = new User(2L, "Owner 1");
+        User user2 = new User(2L, "Owner 1");
         user2.setEmail("User2@mail.ru");
-        user3 = new User(1L, "Owner 1");
+        User user3 = new User(1L, "Owner 1");
         user3.setEmail("User3@mail.ru");
 
         userRepository.save(user1);
@@ -50,5 +48,6 @@ class ItemRepositoryTest {
         Optional<Collection<Item>> actualItems = itemRepository.findAllByUserId(1L);
 
         assertTrue(actualItems.isPresent());
+        assertEquals(2, actualItems.get().size());
     }
 }

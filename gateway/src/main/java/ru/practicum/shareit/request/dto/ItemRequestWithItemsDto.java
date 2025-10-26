@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.shareit.item.dto.ItemResponseWithOwnerIdDto;
@@ -14,6 +15,7 @@ public class ItemRequestWithItemsDto {
     private Long id;
     private String description;
     private Long requestor;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime created;
-    List<ItemResponseWithOwnerIdDto> itemResponseWithOwnerIdDtos;
+    private List<ItemResponseWithOwnerIdDto> itemResponseWithOwnerIdDtos;
 }

@@ -31,7 +31,7 @@ class ItemMapperUpdateFieldTest {
     @Autowired
     private ItemService itemService;
     @Autowired
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
 
     private Long newUserId;
     private Item oldItem;

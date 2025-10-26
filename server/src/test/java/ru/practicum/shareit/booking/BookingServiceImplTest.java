@@ -32,20 +32,20 @@ import static org.mockito.Mockito.*;
 class BookingServiceImplTest {
 
     @Mock
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
     @Mock
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
     @Mock
-    BookingMapper bookingMapper;
+    private BookingMapper bookingMapper;
     @Mock
-    UserServiceImpl userService;
+    private UserServiceImpl userService;
     @Mock
-    BookingStrategy bookingStrategy;
+    private BookingStrategy bookingStrategy;
     @Mock
-    BookingStrategyFactory bookingStrategyFactory;
+    private BookingStrategyFactory bookingStrategyFactory;
 
     @InjectMocks
-    BookingServiceImpl bookingService;
+    private BookingServiceImpl bookingService;
 
     private Long userId;
     private Long itemId;
@@ -261,7 +261,7 @@ class BookingServiceImplTest {
     @Test
     void checkingThatTheUserHasRentedTheItem() {
         Status status = Status.APPROVED;
-        LocalDateTime timeNow = LocalDateTime.of(2026, 10,18, 14, 17);
+        LocalDateTime timeNow = LocalDateTime.of(2026, 10, 18, 14, 17);
 
         when(bookingRepository.findFirstByItemIdAndBookerIdAndStatusAndStartIsBefore(
                 itemId,
