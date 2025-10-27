@@ -43,6 +43,6 @@ class UserControllerIntegrationTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error", is("Объект не найден")))
-                .andExpect(jsonPath("$.description['message: ']", is("Пользователь не найден")));
+                .andExpect(jsonPath("$.description", is("Пользователь не найден")));
     }
 }
